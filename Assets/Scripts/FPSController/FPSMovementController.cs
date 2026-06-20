@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using FishNet.Object;
 
 namespace FPS.Controller
 {
@@ -10,20 +12,30 @@ namespace FPS.Controller
     ///   - Applies gravity and calls CharacterController.Move once per frame.
     ///   - Maintains shared flags (JumpRequested, SlideHeld) consumed by states.
     ///   - Exposes helpers for capsule resizing and TargetCameraLocalY.
+    ///   - Directly binds to the PlayerInput component's InputActionAsset
+    ///     (Player map) and exposes cooked values consumed by the controller
+    ///     and states, replacing the former FPSInputReader ScriptableObject.
     ///
     /// Gravity is intentionally applied AFTER StateMachine.Tick() so that the
     /// upward impulse set in JumpState.Enter() is not clobbered in the same frame.
+    ///
+    /// Input is only subscribed for the owning client (IsOwner) via OnStartClient,
+    /// ensuring non-owner proxies never process local input.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
-    public class FPSMovementController : MonoBehaviour
+    [RequireComponent(typeof(PlayerInput))]
+    public class FPSMovementController : NetworkBehaviour
     {
         [Header("References")]
-        [SerializeField] private FPSInputReader    _input;
         [SerializeField] private FPSPlayerSettings _settings;
+
+        // ── Polled values (formerly on FPSInputReader) ───────────────────────────
+        // Updated each frame via InputAction callbacks on performed/canceled.
+        public Vector2 MoveInput { get; private set; }
+        public Vector2 LookInput { get; private set; }
 
         // ── Public context ───────────────────────────────────────────────────────
         public CharacterController CharController { get; private set; }
-        public FPSInputReader      Input          => _input;
         public FPSPlayerSettings   Settings       => _settings;
         public StateMachine        StateMachine   { get; private set; }
 
@@ -54,12 +66,30 @@ namespace FPS.Controller
         public FPSSlideState SlideState { get; private set; }
         public FPSJumpState  JumpState  { get; private set; }
 
+        // ── PlayerInput & action references ─────────────────────────────────────
+        // Actions are resolved from the InputActionAsset bound to the PlayerInput
+        // component (Player map) rather than a separate ScriptableObject asset.
+        private PlayerInput _playerInput;
+        private InputAction _moveAction;
+        private InputAction _lookAction;
+        private InputAction _jumpAction;
+        private InputAction _slideAction;
+
         // ────────────────────────────────────────────────────────────────────────
 
         private void Awake()
         {
             CharController = GetComponent<CharacterController>();
             StateMachine   = new StateMachine();
+
+            // Resolve the PlayerInput component and cache action references from
+            // its bound asset (Assets/InputSystem_Actions.inputactions → Player map).
+            _playerInput = GetComponent<PlayerInput>();
+            var map      = _playerInput.actions.FindActionMap("Player", throwIfNotFound: true);
+            _moveAction  = map.FindAction("Move",   throwIfNotFound: true);
+            _lookAction  = map.FindAction("Look",   throwIfNotFound: true);
+            _jumpAction  = map.FindAction("Jump",   throwIfNotFound: true);
+            _slideAction = map.FindAction("Crouch", throwIfNotFound: true);
 
             IdleState  = new FPSIdleState(this);
             RunState   = new FPSRunState(this);
@@ -79,22 +109,72 @@ namespace FPS.Controller
             StateMachine.Initialize(IdleState);
         }
 
-        private void OnEnable()
+        /// <summary>
+        /// Enable input and subscribe to actions only for the owning client.
+        /// Non-owner proxies leave PlayerInput disabled and never bind callbacks,
+        /// preventing ghost input from driving remote characters.
+        /// </summary>
+        public override void OnStartClient()
         {
-            _input.JumpStarted  += OnJumpStarted;
-            _input.SlideStarted += OnSlideStarted;
-            _input.SlideEnded   += OnSlideEnded;
+            if (!IsOwner) return;
+            _playerInput.enabled = true;
+            SubscribeActions();
+            
         }
 
-        private void OnDisable()
+        /// <summary>
+        /// Mirror of OnStartClient — unsubscribe callbacks when the client stops
+        /// to prevent stale delegates from firing after the object is despawned.
+        /// </summary>
+        public override void OnStopClient()
         {
-            _input.JumpStarted  -= OnJumpStarted;
-            _input.SlideStarted -= OnSlideStarted;
-            _input.SlideEnded   -= OnSlideEnded;
+            if (IsOwner)
+                UnsubscribeActions();
+        }
+
+        // ── Action subscription helpers ──────────────────────────────────────────
+
+        /// <summary>
+        /// Binds all input callbacks. Called once for the owning client in
+        /// OnStartClient. Kept in a dedicated method so OnStopClient can mirror
+        /// it cleanly without duplicating delegate references.
+        /// </summary>
+        private void SubscribeActions()
+        {
+            _moveAction.performed  += HandleMove;
+            _moveAction.canceled   += HandleMove;
+            _lookAction.performed  += HandleLook;
+            _lookAction.canceled   += HandleLook;
+            _jumpAction.started    += HandleJump;
+            _slideAction.started   += HandleSlideStarted;
+            _slideAction.canceled  += HandleSlideEnded;
+        }
+
+        /// <summary>
+        /// Removes all input callbacks registered in SubscribeActions.
+        /// Always call this before the object is destroyed or ownership changes
+        /// to avoid memory leaks and phantom input processing.
+        /// </summary>
+        private void UnsubscribeActions()
+        {
+            _moveAction.performed  -= HandleMove;
+            _moveAction.canceled   -= HandleMove;
+            _lookAction.performed  -= HandleLook;
+            _lookAction.canceled   -= HandleLook;
+            _jumpAction.started    -= HandleJump;
+            _slideAction.started   -= HandleSlideStarted;
+            _slideAction.canceled  -= HandleSlideEnded;
+
+            // Reset polled values so a disconnecting owner does not leave stale
+            // directional input frozen on the controller.
+            MoveInput = Vector2.zero;
+            LookInput = Vector2.zero;
         }
 
         private void Update()
         {
+            if (!IsOwner) return;
+
             IsGrounded = CharController.isGrounded;
 
             // Pin Y to a small negative value while grounded to maintain contact
@@ -116,7 +196,11 @@ namespace FPS.Controller
             JumpRequested = false;
         }
 
-        private void FixedUpdate() => StateMachine.FixedTick();
+        private void FixedUpdate()
+        {
+            if (!IsOwner) return;
+            StateMachine.FixedTick();
+        }
 
         // ── Public helpers ───────────────────────────────────────────────────────
 
@@ -132,9 +216,29 @@ namespace FPS.Controller
             CharController.center = new Vector3(0f, next * 0.5f, 0f);
         }
 
-        // ── Input callbacks ──────────────────────────────────────────────────────
-        private void OnJumpStarted()  => JumpRequested = true;
-        private void OnSlideStarted() => SlideHeld     = true;
-        private void OnSlideEnded()   => SlideHeld     = false;
+        // ── Handlers ─────────────────────────────────────────────────────────────
+
+        // performed fires on any non-zero input; canceled fires when input returns
+        // to zero. Handling both phases keeps MoveInput/LookInput accurate whether
+        // the player is actively steering or has released the stick/keys.
+        private void HandleMove(InputAction.CallbackContext ctx)
+            => MoveInput = ctx.ReadValue<Vector2>();
+
+        private void HandleLook(InputAction.CallbackContext ctx)
+            => LookInput = ctx.ReadValue<Vector2>();
+
+        // Jump uses started (not performed) so the impulse fires on the very first
+        // frame the button is pressed, matching the original FPSInputReader behaviour.
+        private void HandleJump(InputAction.CallbackContext ctx)
+            => JumpRequested = true;
+
+        // Slide tracks hold state: started → held, canceled → released.
+        // States poll SlideHeld each tick rather than reacting to an event,
+        // keeping slide logic self-contained inside FPSSlideState.
+        private void HandleSlideStarted(InputAction.CallbackContext ctx)
+            => SlideHeld = true;
+
+        private void HandleSlideEnded(InputAction.CallbackContext ctx)
+            => SlideHeld = false;
     }
 }

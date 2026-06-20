@@ -68,7 +68,7 @@ namespace FPS.Controller
 
             if (expired || released)
             {
-                bool hasInput = Controller.Input.MoveInput.sqrMagnitude > 0.01f;
+                bool hasInput = Controller.MoveInput.sqrMagnitude > 0.01f;
                 Controller.StateMachine.TransitionTo(hasInput
                     ? (IState)Controller.RunState
                     : Controller.IdleState);

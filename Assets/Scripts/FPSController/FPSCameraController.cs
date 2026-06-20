@@ -1,4 +1,7 @@
+using FishNet.Connection;
+using FishNet.Object;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace FPS.Controller
 {
@@ -12,17 +15,15 @@ namespace FPS.Controller
     /// Camera height is smoothly driven toward TargetCameraLocalY which the
     /// active movement state updates.
     /// </summary>
-    [RequireComponent(typeof(Camera))]
-    public class FPSCameraController : MonoBehaviour
+    public class FPSCameraController : NetworkBehaviour
     {
         [Header("References")]
-        [SerializeField] private FPSInputReader       _input;
         [SerializeField] private FPSPlayerSettings    _settings;
         [SerializeField] private FPSMovementController _movementController;
 
         private float _pitch;
         private float _yaw;
-
+    
         private void Start()
         {
             // Seed yaw from the player body's current heading so the camera
@@ -34,9 +35,29 @@ namespace FPS.Controller
             if (_pitch > 180f) _pitch -= 360f;
         }
 
+        // public override void OnStartClient()
+        // {
+        //     base.OnStartClient();
+        //     if (!IsOwner) return;
+        //     if (Camera.main == null) return;
+        //     Camera.main.transform.parent = transform;
+        //     Camera.main.transform.localPosition = Vector3.zero;
+        //     Camera.main.transform.rotation = Quaternion.identity;
+        // }
+
+        public override void OnOwnershipClient(NetworkConnection prevOwner)
+        {
+            if (!IsOwner) return;
+            if (Camera.main == null) return;
+            Camera.main.transform.parent = transform;
+            Camera.main.transform.localPosition = Vector3.zero;
+            Camera.main.transform.rotation = Quaternion.identity;
+        }
+
         private void LateUpdate()
         {
-            Vector2 delta = _input.LookInput * _settings.MouseSensitivity;
+            if (!IsOwner) return; 
+            Vector2 delta = _movementController.LookInput * _settings.MouseSensitivity; // we might want to detach movement and input.
 
             _yaw   += delta.x;
             _pitch -= delta.y;  // subtract: positive mouse-Y should look up

@@ -47,7 +47,7 @@ namespace FPS.Controller
                 }
             }
 
-            if (Controller.Input.MoveInput.sqrMagnitude <= 0.01f)
+            if (Controller.MoveInput.sqrMagnitude <= 0.01f)
             {
                 Controller.StateMachine.TransitionTo(Controller.IdleState);
                 return;

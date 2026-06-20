@@ -77,7 +77,7 @@ namespace FPS.Controller
         {
             FPSPlayerSettings s = Controller.Settings;
 
-            Vector2 input   = Controller.Input.MoveInput;
+            Vector2 input   = Controller.MoveInput;
             bool isSideStrafe = Mathf.Abs(input.x) > Mathf.Abs(input.y) && Mathf.Abs(input.y) < 0.1f;
 
             float accel;
@@ -146,7 +146,7 @@ namespace FPS.Controller
         /// </summary>
         protected Vector3 BuildWishDir()
         {
-            Vector2   input  = Controller.Input.MoveInput;
+            Vector2   input  = Controller.MoveInput;
             Transform body   = Controller.transform;
             Vector3   dir    = body.right * input.x + body.forward * input.y;
             dir.y            = 0f;

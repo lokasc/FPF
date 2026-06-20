@@ -31,7 +31,7 @@ namespace FPS.Controller
                 return;
             }
 
-            if (Controller.Input.MoveInput.sqrMagnitude > 0.01f)
+            if (Controller.MoveInput.sqrMagnitude > 0.01f)
             {
                 Controller.StateMachine.TransitionTo(Controller.RunState);
                 return;
