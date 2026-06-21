@@ -12,25 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c164977bae860341a88d217a1a97735, type: 3}
   m_Name: FPSPlayerSettings
   m_EditorClassIdentifier: Assembly-CSharp::FPS.Controller.FPSPlayerSettings
-  MoveSpeed: 10
-  GroundAccelerate: 14
-  GroundDecelerate: 10
+  MoveSpeed: 100
+  GroundAccelerate: 1
+  GroundDecelerate: 100
   Friction: 6
   StopSpeed: 1.5
-  AirAccelerate: 2
+  AirAccelerate: 1
   AirSpeedCap: 1.2
-  SideStrafeAccel: 100
-  SideStrafeSpeed: 0.35
+  SideStrafeAccel: 1
+  SideStrafeSpeed: 10
   JumpSpeed: 8
   Gravity: 20
   MinSlideEntrySpeed: 2
-  SlideSpeedBoost: 4
-  SlideFriction: 1.5
-  MaxSlideDuration: 1.2
+  SlideSpeedBoost: 10
+  SlideFriction: 1
+  MaxSlideDuration: 100
   NormalHeight: 2
   SlideHeight: 1
   HeightSmoothSpeed: 15
-  MouseSensitivity: 0.15
+  MouseSensitivity: 0.1
   MaxPitchAngle: 80
   NormalCameraLocalY: 1.6
   SlideCameraLocalY: 0.5
