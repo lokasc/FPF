@@ -17,7 +17,12 @@ public class MainMenuUI : MonoBehaviour
         // need the guard   
         clientButton.onClick.AddListener(OnClickClient);
         hostButton.onClick.AddListener(OnClickHost);
-        
+
+        if (!SteamClient.IsValid)
+        {
+            steamID.text += "Steam not connected or not using Steam Transport";
+            return;
+        } 
         steamID.text += " " + SteamClient.SteamId.ToString();
         steamDisplayName.text += " " + SteamClient.Name.ToString();
     }
