@@ -44,7 +44,7 @@ namespace FPS.Controller
         //     Camera.main.transform.localPosition = Vector3.zero;
         //     Camera.main.transform.rotation = Quaternion.identity;
         // }
-
+    
         public override void OnOwnershipClient(NetworkConnection prevOwner)
         {
             if (!IsOwner) return;
@@ -52,6 +52,8 @@ namespace FPS.Controller
             Camera.main.transform.parent = transform;
             Camera.main.transform.localPosition = Vector3.zero;
             Camera.main.transform.rotation = Quaternion.identity;
+            
+            Camera.main.cullingMask = ~(1 << LayerMask.NameToLayer("IgnoreClientCamera"));
         }
 
         private void LateUpdate()

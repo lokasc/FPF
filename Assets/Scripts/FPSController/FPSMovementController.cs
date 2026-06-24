@@ -104,7 +104,7 @@ namespace FPS.Controller
 
             TargetCameraLocalY    = _settings.NormalCameraLocalY;
             CharController.height = _settings.NormalHeight;
-            CharController.center = new Vector3(0f, _settings.NormalHeight * 0.5f, 0f);
+            // CharController.center = new Vector3(0f, _settings.NormalHeight * 0.5f, 0f);
 
             StateMachine.Initialize(IdleState);
         }
@@ -210,10 +210,10 @@ namespace FPS.Controller
         /// </summary>
         public void SetControllerHeight(float targetHeight)
         {
-            float next = Mathf.Lerp(CharController.height, targetHeight,
-                                    _settings.HeightSmoothSpeed * Time.deltaTime);
-            CharController.height = next;
-            CharController.center = new Vector3(0f, next * 0.5f, 0f);
+            // float next = Mathf.Lerp(CharController.height, targetHeight,
+            //                         _settings.HeightSmoothSpeed * Time.deltaTime);
+            // CharController.height = next;
+            // CharController.center = new Vector3(0f, next * 0.5f, 0f);
         }
 
         // ── Handlers ─────────────────────────────────────────────────────────────

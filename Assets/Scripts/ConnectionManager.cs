@@ -8,8 +8,6 @@ public class P2PConnectionBehaviour : MonoBehaviour
     {
         if (InstanceFinder.NetworkManager == null) return false;
         input = input.Trim();
-        if (!ulong.TryParse(input, out ulong rawId) || !((SteamId)rawId).IsValid)
-            return false;
         
         // If we're using other transport methods -> i.e. tugboat.
         if (!SteamClient.IsValid)
@@ -18,6 +16,8 @@ public class P2PConnectionBehaviour : MonoBehaviour
         }
         else
         {
+            if (!ulong.TryParse(input, out ulong rawId) || !((SteamId)rawId).IsValid)
+                return false;
             InstanceFinder.TransportManager.Transport.SetClientAddress(input);
             InstanceFinder.ClientManager.StartConnection();
         }

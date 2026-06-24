@@ -6,6 +6,7 @@ using FishNet.Object.Synchronizing;
 using FishNet.Object;
 using TMPro;
 using FishNet.CodeGenerating;
+using FPS.Controller;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
@@ -13,16 +14,26 @@ using UnityEngine.InputSystem;
 public class Player : NetworkBehaviour
 {
     [SerializeField] private PlayerUI playerUI;
+
+    [SerializeField] public PlayerModelBehaviour playerModel;
+
+    [SerializeField] public FPSCameraController cameraHolder;
     // We will need to refactor this 
     [SerializeField] private float maxHealth;
     [AllowMutableSyncType]
     public SyncVar<float> health = new(10);
+
+    private void Start()
+    {
+        playerModel.Initialize(this);
+    }
 
     public override void OnStartClient()
     {
         if (!IsOwner) return;
         playerUI.gameObject.SetActive(true);
         playerUI.Subscribe(this);
+        print(IsOwner);
     }
 
     public override void OnStartServer()
@@ -47,4 +58,6 @@ public class Player : NetworkBehaviour
     {
         health.Value -= hit; 
     }
+    
+    
 }
