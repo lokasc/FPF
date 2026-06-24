@@ -93,7 +93,7 @@ namespace FPS.Controller
 
             IdleState  = new FPSIdleState(this);
             RunState   = new FPSRunState(this);
-            SlideState = new FPSSlideState(this);
+            // SlideState = new FPSSlideState(this);
             JumpState  = new FPSJumpState(this);
         }
 

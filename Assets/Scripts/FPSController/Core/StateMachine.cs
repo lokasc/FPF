@@ -27,7 +27,8 @@ namespace FPS.Controller
         public void TransitionTo(IState nextState)
         {
             if (nextState == CurrentState) return;
-
+            if (nextState == null) return;
+            
             IState previous = CurrentState;
             CurrentState?.Exit();
             CurrentState = nextState;
