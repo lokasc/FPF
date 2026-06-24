@@ -1,8 +1,8 @@
 using UnityEngine;
-using FishNet;
 using UnityEngine.UI;
 using TMPro;
 using Steamworks;
+using FishNet;
 public class MainMenuUI : MonoBehaviour
 {
     
@@ -12,10 +12,12 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField]private Button clientButton;
     [SerializeField] private TMP_InputField steamAddress;
     
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private P2PConnectionBehaviour _connectionManager;
     void Start()
     {
-        // need the guard   
+        _connectionManager = InstanceFinder.NetworkManager.GetComponent<P2PConnectionBehaviour>(); 
+        
+        // Connects UI to functionality.
         clientButton.onClick.AddListener(OnClickClient);
         hostButton.onClick.AddListener(OnClickHost);
 
@@ -26,29 +28,22 @@ public class MainMenuUI : MonoBehaviour
         } 
         steamID.text += " " + SteamClient.SteamId.ToString();
         steamDisplayName.text += " " + SteamClient.Name.ToString();
-        
-        SteamHelperFunctions.Instance.UnlockAchivement(10);
-        
     }
 
-    public void OnClickClient()
+    private void OnClickClient()
     {
-        if (InstanceFinder.NetworkManager == null) return;
-        string input = steamAddress.text.Trim();
-        if (!ulong.TryParse(input, out ulong rawId) || !((SteamId)rawId).IsValid)
-            return;
+        if (_connectionManager.ClientConnect(steamAddress.text))
+        {
+            clientButton.gameObject.SetActive(false);
+        }
+    }
+    private void OnClickHost()
+    {
+        if (_connectionManager.HostConnect())
+        {
+            clientButton.gameObject.SetActive(false);
+            hostButton.gameObject.SetActive(false);
+        }
+    }
         
-        InstanceFinder.TransportManager.Transport.SetClientAddress(input);
-        InstanceFinder.ClientManager.StartConnection();
-        clientButton.gameObject.SetActive(false);
-    }
-
-    public void OnClickHost()
-    {
-        if (InstanceFinder.NetworkManager == null) return;
-        InstanceFinder.ServerManager.StartConnection();
-        InstanceFinder.ClientManager.StartConnection();
-        hostButton.gameObject.SetActive(false);
-        clientButton.gameObject.SetActive(false);
-    }
 }
