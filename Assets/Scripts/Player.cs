@@ -34,7 +34,6 @@ public class Player : NetworkBehaviour
         if (!IsOwner) return;
         playerUI.gameObject.SetActive(true);
         playerUI.Subscribe(this);
-        print(IsOwner);
     }
 
     public override void OnStartServer()
@@ -42,23 +41,11 @@ public class Player : NetworkBehaviour
         // Initialize health on server
         health.Value = maxHealth;
     }
-
-    private void Update()
-    {
-        if (!base.IsOwner) return;
-
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
-        {
-            ServerTakeDamage(2);
-        }
-    }
-
+    
     // This is executed on the server, health is autosync-ed so the OnTakeDamage Function is called. 
-    [ServerRpc(RequireOwnership = false)]
-    private void ServerTakeDamage(float hit)
+    [Server]
+    public void TakeDamage(float hit)
     {
         health.Value -= hit; 
     }
-    
-    
 }

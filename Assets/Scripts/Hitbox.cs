@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FishNet;
 using FishNet.Object;
 using UnityEngine;
 
@@ -19,10 +20,10 @@ public class Hitbox : NetworkBehaviour
         if (hitboxCollider != null)
             hitboxCollider.isTrigger = true;
 
-        if (hitboxCollider != null)
-            hitboxCollider.enabled = false;
+        // if (hitboxCollider != null)
+        //     hitboxCollider.enabled = false;
     }
-
+    
     public void Initialize(Player owner)
     {
         _owner = owner;
@@ -45,12 +46,12 @@ public class Hitbox : NetworkBehaviour
 
         _alreadyHit.Clear();
     }
-
+    
+    [Client]
     private void OnTriggerEnter(Collider other)
     {
         if (!IsServerStarted)
             return;
-
         Hurtbox hurtbox = other.GetComponent<Hurtbox>();
 
         if (hurtbox == null)
@@ -66,11 +67,12 @@ public class Hitbox : NetworkBehaviour
         if (_owner != null && hurtbox.Owner == _owner)
             return;
 
-        // Ignore duplicate hits during one swing.
-        if (_alreadyHit.Contains(hurtbox))
-            return;
+        Debug.Log(other.name);
+        // // Ignore duplicate hits during one swing.
+        // if (_alreadyHit.Contains(hurtbox))
+        //     return;
 
-        _alreadyHit.Add(hurtbox);
+        // _alreadyHit.Add(hurtbox);
         hurtbox.TakeDamage(damage);
     }
 }

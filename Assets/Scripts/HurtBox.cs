@@ -10,12 +10,13 @@ public class Hurtbox : NetworkBehaviour
         Owner = owner;
     }
 
-    [Server]
+    [ServerRpc(RequireOwnership = false)]
     public void TakeDamage(int amount)
     {
-        if (Owner == null)
-            return;
-
-        Owner.health.Value -= amount;
+        // Debug.LogWarning("I've been hit!");
+        if (Owner == null) return;
+        Debug.LogWarning("I've been hit 2!");
+        
+        Owner.TakeDamage(amount);
     }
 }
