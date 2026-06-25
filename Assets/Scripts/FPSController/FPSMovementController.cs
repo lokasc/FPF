@@ -124,6 +124,7 @@ namespace FPS.Controller
             // CharController.center = new Vector3(0f, _settings.NormalHeight * 0.5f, 0f);
 
             StateMachine.Initialize(IdleState);
+            Cursor.visible = false;
         }
 
         /// <summary>
