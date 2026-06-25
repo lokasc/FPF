@@ -140,6 +140,8 @@ namespace FPS.Controller
         // ── Shared helpers ───────────────────────────────────────────────────────
 
         /// <summary>
+        /// Lucas' TLDR - WISHDIR is getting wasd in vector3 form and returning it to u.
+        /// 
         /// Builds the normalised wish direction from WASD input relative to the
         /// player body's forward/right axes (horizontal plane only).
         /// Returns Vector3.zero when there is no input.

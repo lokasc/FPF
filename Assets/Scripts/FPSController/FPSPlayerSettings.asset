@@ -21,6 +21,8 @@ MonoBehaviour:
   AirSpeedCap: 1.2
   SideStrafeAccel: 1
   SideStrafeSpeed: 10
+  dashDuration: 0.2
+  dashStrength: 50
   JumpSpeed: 8
   Gravity: 20
   MinSlideEntrySpeed: 2

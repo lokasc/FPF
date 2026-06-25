@@ -37,6 +37,12 @@ namespace FPS.Controller
                 return;
             }
 
+            if (Controller.DashRequested)
+            {
+                Controller.StateMachine.TransitionTo(Controller.DashState);
+                return;
+            }
+
             // Bleed residual velocity with ground friction; Accelerate is not
             // called here because there is no wishdir to accelerate toward.
             ApplyFriction(Controller.Settings.Friction);

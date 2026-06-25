@@ -68,6 +68,11 @@ namespace FPS.Controller
                     ? (IState)Controller.RunState
                     : Controller.IdleState);
             }
+            if (Controller.DashRequested)
+            {
+                Controller.StateMachine.TransitionTo(Controller.DashState);
+                return;
+            }
         }
 
         public override void Exit() { }

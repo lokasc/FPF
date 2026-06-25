@@ -26,7 +26,7 @@ namespace FPS.Controller
         [Tooltip("Quake sv_stopspeed — when speed is below this value friction is applied at maximum " +
                  "strength, preventing the player from drifting forever at low speeds.")]
         public float StopSpeed          = 1.5f;
-
+        
         [Header("Air Movement")]
         [Tooltip("Acceleration rate while airborne (intentionally low; this is what makes strafe-jumping possible).")]
         public float AirAccelerate      = 2f;
@@ -43,6 +43,9 @@ namespace FPS.Controller
                  "Keep this small (Quake CPMA ~ 0.35 Unity units) to preserve inertia.")]
         public float SideStrafeSpeed    = 0.35f;
 
+        [Header("Dash")] public float dashDuration;
+        public float dashStrength;
+        
         [Header("Jump")]
         [Tooltip("Vertical speed applied as an impulse on jump (Unity units / s).")]
         public float JumpSpeed          = 8f;

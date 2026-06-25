@@ -28,7 +28,14 @@ namespace FPS.Controller
     {
         [Header("References")]
         [SerializeField] private FPSPlayerSettings _settings;
+        private Player playerCore;
+        public Timer dashTimer;
+        
+        [Header("Player Status")] 
+        public bool canDash;
 
+        public string currentState;
+        
         // ── Polled values (formerly on FPSInputReader) ───────────────────────────
         // Updated each frame via InputAction callbacks on performed/canceled.
         public Vector2 MoveInput { get; private set; }
@@ -50,6 +57,8 @@ namespace FPS.Controller
         /// Cleared at the end of Update after the state machine has processed it.
         /// </summary>
         public bool JumpRequested { get; private set; }
+        
+        public bool DashRequested { get; private set; }
 
         /// <summary>True while the crouch/slide button is held.</summary>
         public bool SlideHeld { get; private set; }
@@ -65,6 +74,8 @@ namespace FPS.Controller
         public FPSRunState   RunState   { get; private set; }
         public FPSSlideState SlideState { get; private set; }
         public FPSJumpState  JumpState  { get; private set; }
+        public FPSDashState  DashState  { get; private set; }
+        
 
         // ── PlayerInput & action references ─────────────────────────────────────
         // Actions are resolved from the InputActionAsset bound to the PlayerInput
@@ -74,6 +85,7 @@ namespace FPS.Controller
         private InputAction _lookAction;
         private InputAction _jumpAction;
         private InputAction _slideAction;
+        private InputAction _dashAction;
 
         // ────────────────────────────────────────────────────────────────────────
 
@@ -85,16 +97,21 @@ namespace FPS.Controller
             // Resolve the PlayerInput component and cache action references from
             // its bound asset (Assets/InputSystem_Actions.inputactions → Player map).
             _playerInput = GetComponent<PlayerInput>();
+            playerCore = GetComponent<Player>();
             var map      = _playerInput.actions.FindActionMap("Player", throwIfNotFound: true);
             _moveAction  = map.FindAction("Move",   throwIfNotFound: true);
             _lookAction  = map.FindAction("Look",   throwIfNotFound: true);
             _jumpAction  = map.FindAction("Jump",   throwIfNotFound: true);
             _slideAction = map.FindAction("Crouch", throwIfNotFound: true);
+            _dashAction = map.FindAction("Dash", throwIfNotFound: true);
+            
 
             IdleState  = new FPSIdleState(this);
             RunState   = new FPSRunState(this);
             // SlideState = new FPSSlideState(this);
             JumpState  = new FPSJumpState(this);
+            DashState = new FPSDashState(this);
+            dashTimer = GetComponent<Timer>();
         }
 
         private void Start()
@@ -148,6 +165,7 @@ namespace FPS.Controller
             _jumpAction.started    += HandleJump;
             _slideAction.started   += HandleSlideStarted;
             _slideAction.canceled  += HandleSlideEnded;
+            _dashAction.performed += HandleDash;
         }
 
         /// <summary>
@@ -164,7 +182,8 @@ namespace FPS.Controller
             _jumpAction.started    -= HandleJump;
             _slideAction.started   -= HandleSlideStarted;
             _slideAction.canceled  -= HandleSlideEnded;
-
+            _dashAction.performed -= HandleDash;
+            
             // Reset polled values so a disconnecting owner does not leave stale
             // directional input frozen on the controller.
             MoveInput = Vector2.zero;
@@ -194,6 +213,10 @@ namespace FPS.Controller
 
             // Consume jump flag — it is only valid for one state-machine tick
             JumpRequested = false;
+            DashRequested = false;
+            
+            //Display current state in inspector
+            currentState = StateMachine.CurrentState.ToString();
         }
 
         private void FixedUpdate()
@@ -228,10 +251,20 @@ namespace FPS.Controller
             => LookInput = ctx.ReadValue<Vector2>();
 
         // Jump uses started (not performed) so the impulse fires on the very first
-        // frame the button is pressed, matching the original FPSInputReader behaviour.
+        // frame the button is pressed.
         private void HandleJump(InputAction.CallbackContext ctx)
             => JumpRequested = true;
 
+        private void HandleDash(InputAction.CallbackContext ctx)
+        {
+            if (canDash)
+            {
+                canDash = false;
+                DashRequested = true;
+                dashTimer.StartTimer(0.5f);
+            }
+        }
+        
         // Slide tracks hold state: started → held, canceled → released.
         // States poll SlideHeld each tick rather than reacting to an event,
         // keeping slide logic self-contained inside FPSSlideState.
@@ -240,5 +273,10 @@ namespace FPS.Controller
 
         private void HandleSlideEnded(InputAction.CallbackContext ctx)
             => SlideHeld = false;
+
+        public void OnDashTimerFinished()
+        {
+            canDash = true;
+        }
     }
 }

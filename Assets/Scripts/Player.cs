@@ -10,7 +10,8 @@ using FPS.Controller;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-// Central Class for managing UI and health.
+// Central Class for managing everything inbetween.
+// Maintains player's status effects too!
 public class Player : NetworkBehaviour
 {
     [SerializeField] private PlayerUI playerUI;

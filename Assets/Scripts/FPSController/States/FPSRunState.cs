@@ -52,11 +52,15 @@ namespace FPS.Controller
                 Controller.StateMachine.TransitionTo(Controller.IdleState);
                 return;
             }
+            
+            if (Controller.DashRequested)
+            {
+                Controller.StateMachine.TransitionTo(Controller.DashState);
+                return;
+            }
 
             // Quake ground physics: friction first, then accelerate.
             // Applying friction before Accelerate means a 180° direction change
-            // feels crisp — friction removes backward speed, Accelerate builds
-            // forward speed, all within a single frame.
             ApplyFriction(Controller.Settings.Friction);
 
             Vector3 wishdir = BuildWishDir();
