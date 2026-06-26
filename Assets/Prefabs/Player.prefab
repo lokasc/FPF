@@ -947,7 +947,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584192057874577354
+  _initializedTimestamp: -8584191003463328474
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -1275,7 +1275,7 @@ MonoBehaviour:
   _componentIndexCache: 9
   _addedNetworkObject: {fileID: 5612453927072548499}
   _networkObjectCache: {fileID: 5612453927072548499}
-  Owner: {fileID: -910896117939721708}
+  player: {fileID: -910896117939721708}
 --- !u!1 &5628569834704272102
 GameObject:
   m_ObjectHideFlags: 0

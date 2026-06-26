@@ -3,20 +3,21 @@ using UnityEngine;
 
 public class Hurtbox : NetworkBehaviour
 {
-    public Player Owner;
+    public Player player;
 
     public void Initialize(Player owner)
     {
-        Owner = owner;
+        player = owner;
     }
 
+    
     [ServerRpc(RequireOwnership = false)]
-    public void TakeDamage(int amount)
+    public void TakeDamageRPCtoServer(int amount)
     {
         // Debug.LogWarning("I've been hit!");
         if (Owner == null) return;
         Debug.LogWarning("I've been hit 2!");
         
-        Owner.TakeDamage(amount);
+        player.TakeDamage(amount);
     }
 }

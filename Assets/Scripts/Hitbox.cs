@@ -47,11 +47,15 @@ public class Hitbox : NetworkBehaviour
         _alreadyHit.Clear();
     }
     
-    [Client]
+
+    // Client Authority Hitboxes
     private void OnTriggerEnter(Collider other)
     {
-        if (!IsServerStarted)
-            return;
+        if (!IsOwner)
+        {
+            return; 
+        }
+        
         Hurtbox hurtbox = other.GetComponent<Hurtbox>();
 
         if (hurtbox == null)
@@ -64,7 +68,7 @@ public class Hitbox : NetworkBehaviour
             return;
 
         // Ignore hitting yourself.
-        if (_owner != null && hurtbox.Owner == _owner)
+        if (_owner != null && hurtbox.player == _owner)
             return;
 
         Debug.Log(other.name);
@@ -73,6 +77,6 @@ public class Hitbox : NetworkBehaviour
         //     return;
 
         // _alreadyHit.Add(hurtbox);
-        hurtbox.TakeDamage(damage);
+        hurtbox.TakeDamageRPCtoServer(damage);
     }
 }
