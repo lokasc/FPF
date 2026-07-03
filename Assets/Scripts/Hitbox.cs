@@ -20,8 +20,7 @@ public class Hitbox : NetworkBehaviour
         if (hitboxCollider != null)
             hitboxCollider.isTrigger = true;
 
-        // if (hitboxCollider != null)
-        //     hitboxCollider.enabled = false;
+        DisableHitbox();
     }
     
     public void Initialize(Player owner)
@@ -29,7 +28,7 @@ public class Hitbox : NetworkBehaviour
         _owner = owner;
     }
 
-    [Server]
+
     public void EnableHitbox()
     {
         _alreadyHit.Clear();
@@ -38,7 +37,7 @@ public class Hitbox : NetworkBehaviour
             hitboxCollider.enabled = true;
     }
 
-    [Server]
+
     public void DisableHitbox()
     {
         if (hitboxCollider != null)
@@ -72,11 +71,11 @@ public class Hitbox : NetworkBehaviour
             return;
 
         Debug.Log(other.name);
-        // // Ignore duplicate hits during one swing.
-        // if (_alreadyHit.Contains(hurtbox))
-        //     return;
+        // Ignore duplicate hits during one swing.
+        if (_alreadyHit.Contains(hurtbox))
+            return;
 
-        // _alreadyHit.Add(hurtbox);
+        _alreadyHit.Add(hurtbox);
         hurtbox.TakeDamageRPCtoServer(damage);
     }
 }

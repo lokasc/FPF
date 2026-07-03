@@ -947,7 +947,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584185125428274509
+  _initializedTimestamp: -8584185121150666723
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -2093,6 +2093,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7617897331145440355, guid: 87d988042a7939b4ca767a4618270cf5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2820329605632677995}
     - targetCorrespondingSourceObject: {fileID: 2176982073822444757, guid: 87d988042a7939b4ca767a4618270cf5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 176894647290117495}
@@ -2125,6 +2128,25 @@ MonoBehaviour:
   damage: 10
   hitboxCollider: {fileID: 0}
   _owner: {fileID: -910896117939721708}
+--- !u!1 &6447301438575785936 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7617897331145440355, guid: 87d988042a7939b4ca767a4618270cf5, type: 3}
+  m_PrefabInstance: {fileID: 3513193900468423603}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2820329605632677995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6447301438575785936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83ea272bcdb550f4b9001629f273a15e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  hitboxes:
+  - {fileID: 176894647290117495}
 --- !u!4 &7634824787021422940 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6428052343043861231, guid: 87d988042a7939b4ca767a4618270cf5, type: 3}
