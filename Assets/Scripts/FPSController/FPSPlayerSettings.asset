@@ -34,6 +34,6 @@ MonoBehaviour:
   HeightSmoothSpeed: 15
   MouseSensitivity: 0.1
   MaxPitchAngle: 80
-  NormalCameraLocalY: 1.6
+  NormalCameraLocalY: 0
   SlideCameraLocalY: 0.5
   CameraHeightSmooth: 12
